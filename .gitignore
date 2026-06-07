@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.superpowers/
+.codex-*.log
+.codex-*.err.log
+*.tsbuildinfo
+dist/
+
+.vercel
+.env
+.env.local
+.env.*.local
