@@ -27,14 +27,38 @@
   key can create, edit, and delete maintenance data. Tighten these policies
   behind authenticated admin users before treating the data as production-safe.
 
-  ## Optional Express/Sequelize backend connection
+  ## Express/Sequelize backend connection
 
-  The maintenance screens use localStorage by default. To connect them to an
-  Express/Sequelize backend, set:
+  The maintenance screens use localStorage by default. For the backend path from
+  the original PDF, run the Express/Sequelize API and point the frontend at it:
 
   ```env
   NEXT_PUBLIC_POKEDEX_BACKEND_URL=http://localhost:4000
+  DATABASE_URL=postgresql://postgres.project-ref:password@aws-0-region.pooler.supabase.com:5432/postgres
+  BACKEND_PORT=4000
+  BACKEND_CORS_ORIGIN=http://localhost:5173
   ```
+
+  Use the Supabase Session pooler connection string from Database settings for
+  the local Express backend. Transaction pooler strings on port `6543` are meant
+  for temporary/serverless connections and may require prepared statements to be
+  disabled.
+  The Sequelize backend uses SSL and the existing `public.regiones`,
+  `public.tipos`, `public.pokemones`, and `public.pokemon_media_assets` tables.
+  Run the SQL migration above first, then start the API:
+
+  ```bash
+  npm run backend
+  ```
+
+  Optional development bootstrap:
+
+  ```env
+  SEQUELIZE_SYNC=true
+  SEQUELIZE_SEED=true
+  ```
+
+  Keep both disabled once the schema is managed by Supabase migrations.
 
   The frontend expects these JSON endpoints:
 

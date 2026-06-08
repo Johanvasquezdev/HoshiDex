@@ -1,9 +1,9 @@
-import { getGenerationFilter } from "./generations";
+import { GENERATIONS, getGenerationFilter } from "./generations";
 import { extractIdFromUrl } from "./pokeapi-client";
 import type { NamedApiResource, PokemonSummary } from "./types";
 
 export type PokemonVariantFilter = "all" | "shiny" | "regional" | "mega" | "forms";
-export type PokemonSortMode = "dex" | "name" | "region";
+export type PokemonSortMode = "regional-mix" | "dex" | "name" | "region";
 
 const SPECIAL_ONLY_VARIANTS: PokemonVariantFilter[] = ["regional", "mega", "forms"];
 
@@ -77,6 +77,8 @@ export function filterPokemonSummary(summary: PokemonSummary, filter: PokemonVar
 }
 
 export function sortPokemonResources(resources: NamedApiResource[], sort: PokemonSortMode) {
+  if (sort === "regional-mix") return sortByRegionalMix(resources);
+
   return [...resources].sort((left, right) => {
     if (sort === "name") return left.name.localeCompare(right.name);
     if (sort === "region") {
@@ -89,6 +91,31 @@ export function sortPokemonResources(resources: NamedApiResource[], sort: Pokemo
     }
     return extractIdFromUrl(left.url) - extractIdFromUrl(right.url);
   });
+}
+
+function sortByRegionalMix(resources: NamedApiResource[]) {
+  const sortedByDex = sortPokemonResources(resources, "dex");
+  const buckets = new Map<string, NamedApiResource[]>();
+  const order = [...GENERATIONS.map((generation) => generation.id), "forms"];
+
+  for (const resource of sortedByDex) {
+    const id = extractIdFromUrl(resource.url);
+    const bucketId = id >= 10000 ? "forms" : getRegionFilterIdForDexNumber(id);
+    buckets.set(bucketId, [...(buckets.get(bucketId) ?? []), resource]);
+  }
+
+  const mixed: NamedApiResource[] = [];
+  let cursor = 0;
+
+  while (mixed.length < sortedByDex.length) {
+    for (const bucketId of order) {
+      const resource = buckets.get(bucketId)?.[cursor];
+      if (resource) mixed.push(resource);
+    }
+    cursor += 1;
+  }
+
+  return mixed;
 }
 
 function getGenerationFilterForResource(url: string) {

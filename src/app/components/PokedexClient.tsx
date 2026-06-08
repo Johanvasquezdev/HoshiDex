@@ -54,7 +54,7 @@ async function fetchPokemonList(params: {
 export function PokedexClient({ initialData }: { initialData: PokemonListResponse }) {
   const [search, setSearch] = useState("");
   const [generation, setGeneration] = useState("all");
-  const [sort, setSort] = useState("dex");
+  const [sort, setSort] = useState("regional-mix");
   const [variant, setVariant] = useState<PokemonVariantFilter>("all");
   const [advancedFilters, setAdvancedFilters] = useState(DEFAULT_ADVANCED_FILTERS);
   const [visibleLimit, setVisibleLimit] = useState(PAGE_SIZE);
@@ -85,7 +85,7 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
     initialData:
       search === "" &&
       generation === "all" &&
-      sort === "dex" &&
+      sort === "regional-mix" &&
       variant === "all" &&
       advancedFilterSignature === "" &&
       visibleLimit === PAGE_SIZE
@@ -213,6 +213,7 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
                         onChange={(event) => setSort(event.target.value)}
                         className="block w-full cursor-pointer appearance-none rounded-2xl border border-white/10 bg-[#111827] py-2.5 pl-9 pr-3 text-xs font-black text-slate-100 outline-none focus:border-red-300/60"
                       >
+                        <option value="regional-mix">Regional Mix</option>
                         <option value="dex">National Dex</option>
                         <option value="name">Name A-Z</option>
                         <option value="region">Region</option>

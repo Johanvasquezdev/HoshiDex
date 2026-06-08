@@ -6,7 +6,7 @@ import { getPokemonList } from "@/lib/pokemon";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const initialData = await getPokemonList({ limit: 30, offset: 0 });
+  const initialData = await getPokemonList({ limit: 30, offset: 0, sort: "regional-mix" });
 
   return (
     <AppShell>

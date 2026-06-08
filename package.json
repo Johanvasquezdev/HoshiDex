@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "next build",
+    "backend": "tsx backend/server.ts",
+    "backend:dev": "tsx watch backend/server.ts",
     "dev": "next dev --hostname 0.0.0.0 --port 5173",
     "start": "next start",
     "test": "vitest run"
@@ -53,13 +55,17 @@
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
+    "cors": "^2.8.6",
     "date-fns": "3.6.0",
+    "dotenv": "^17.4.2",
     "embla-carousel-react": "8.6.0",
+    "express": "^5.2.1",
     "input-otp": "1.4.2",
     "lucide-react": "0.487.0",
     "motion": "12.23.24",
     "next": "^16.1.6",
     "next-themes": "0.4.6",
+    "pg": "^8.21.0",
     "react": "^19.2.4",
     "react-chartjs-2": "^5.3.1",
     "react-day-picker": "8.10.1",
@@ -72,6 +78,7 @@
     "react-responsive-masonry": "2.7.1",
     "react-slick": "0.31.0",
     "recharts": "2.15.2",
+    "sequelize": "^6.37.8",
     "sonner": "2.0.3",
     "tailwind-merge": "3.2.0",
     "three": "^0.184.0",
@@ -81,10 +88,13 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.12",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^24.10.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "tailwindcss": "4.1.12",
+    "tsx": "^4.22.4",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15"
   }

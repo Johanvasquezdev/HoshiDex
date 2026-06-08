@@ -66,4 +66,28 @@ describe("pokemon filters", () => {
       "charizard",
     ]);
   });
+
+  it("interleaves national results by region for the default all-regions view", () => {
+    const entries = [
+      resource("bulbasaur", 1),
+      resource("ivysaur", 2),
+      resource("chikorita", 152),
+      resource("bayleef", 153),
+      resource("treecko", 252),
+      resource("grovyle", 253),
+      resource("sprigatito", 906),
+      resource("floragato", 907),
+    ];
+
+    expect(sortPokemonResources(entries, "regional-mix").map((entry) => entry.name)).toEqual([
+      "bulbasaur",
+      "chikorita",
+      "treecko",
+      "sprigatito",
+      "ivysaur",
+      "bayleef",
+      "grovyle",
+      "floragato",
+    ]);
+  });
 });
