@@ -1,4 +1,5 @@
 import { getPokemonList } from "@/lib/pokemon";
+import { parseAdvancedFilters } from "@/lib/pokemon/advanced-filters";
 
 export const dynamic = "force-dynamic";
 
@@ -10,12 +11,14 @@ export async function GET(request: Request) {
   const variant = searchParams.get("variant") ?? "all";
   const limit = Number(searchParams.get("limit") ?? "60");
   const offset = Number(searchParams.get("offset") ?? "0");
+  const advancedFilters = parseAdvancedFilters(searchParams);
 
   const data = await getPokemonList({
     search,
     generation,
     sort,
     variant,
+    advancedFilters,
     limit: Number.isFinite(limit) ? limit : 60,
     offset: Number.isFinite(offset) ? offset : 0,
   });

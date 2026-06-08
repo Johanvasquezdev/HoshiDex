@@ -1,3 +1,9 @@
+import {
+  DEFAULT_ADVANCED_FILTERS,
+  hasActiveAdvancedFilters,
+  matchesAdvancedFilters,
+  type AdvancedFilters,
+} from "./advanced-filters";
 import { getGenerationFilter } from "./generations";
 import {
   filterPokemonResource,
@@ -36,6 +42,7 @@ export async function getPokemonList(options?: {
   variant?: string;
   limit?: number;
   offset?: number;
+  advancedFilters?: AdvancedFilters;
 }): Promise<PokemonListResponse> {
   const search = options?.search?.trim().toLowerCase() ?? "";
   const requestedVariant = (options?.variant ?? "all") as PokemonVariantFilter;
@@ -45,6 +52,8 @@ export async function getPokemonList(options?: {
   const variant = filters.variant;
   const limit = options?.limit ?? 60;
   const offset = options?.offset ?? 0;
+  const advancedFilters = options?.advancedFilters ?? DEFAULT_ADVANCED_FILTERS;
+  const hasAdvancedFilters = hasActiveAdvancedFilters(advancedFilters);
 
   const list = await pokeApiFetch<RawListResponse>("/pokemon?limit=1500");
   const filtered = sortPokemonResources(
@@ -58,7 +67,8 @@ export async function getPokemonList(options?: {
     sort,
   );
 
-  const page = filtered.slice(offset, offset + limit);
+  const candidateLimit = hasAdvancedFilters ? Math.min(limit * 4, 120) : limit;
+  const page = filtered.slice(offset, offset + candidateLimit);
   const items = (await Promise.all(
     page.map(async (item) => {
       try {
@@ -67,11 +77,14 @@ export async function getPokemonList(options?: {
         return createUnavailablePokemonSummary(item);
       }
     }),
-  )).filter((summary) => filterPokemonSummary(summary, variant));
+  ))
+    .filter((summary) => filterPokemonSummary(summary, variant))
+    .filter((summary) => matchesAdvancedFilters(summary, advancedFilters))
+    .slice(0, limit);
 
   return {
     items,
-    total: variant === "shiny" ? items.length : filtered.length,
+    total: variant === "shiny" || hasAdvancedFilters ? items.length : filtered.length,
     limit,
     offset,
   };

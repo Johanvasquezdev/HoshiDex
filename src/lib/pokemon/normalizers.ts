@@ -2,6 +2,7 @@ import { getGenerationForPokemonId } from "./generations";
 import { POKEBALL_FALLBACK, inferDefaultSpriteUrl, resolvePokemonMedia } from "./media";
 import type {
   EvolutionNode,
+  PokemonBaseStats,
   PokemonAbility,
   PokemonDetail,
   PokemonSummary,
@@ -14,6 +15,34 @@ import type {
 function extractIdFromResourceUrl(url: string): number {
   const id = url.split("/").filter(Boolean).pop();
   return id ? Number(id) : 0;
+}
+
+function normalizeStatName(name: string): keyof PokemonBaseStats | null {
+  if (name === "hp") return "hp";
+  if (name === "attack") return "attack";
+  if (name === "defense") return "defense";
+  if (name === "special-attack") return "specialAttack";
+  if (name === "special-defense") return "specialDefense";
+  if (name === "speed") return "speed";
+  return null;
+}
+
+function normalizeBaseStats(raw: RawPokemon): PokemonBaseStats {
+  const stats: PokemonBaseStats = {
+    hp: 0,
+    attack: 0,
+    defense: 0,
+    specialAttack: 0,
+    specialDefense: 0,
+    speed: 0,
+  };
+
+  raw.stats.forEach((stat) => {
+    const key = normalizeStatName(stat.stat.name);
+    if (key) stats[key] = stat.base_stat;
+  });
+
+  return stats;
 }
 
 export function createUnavailablePokemonSummary(resource: {
@@ -37,6 +66,7 @@ export function createUnavailablePokemonSummary(resource: {
       fallback: POKEBALL_FALLBACK,
     },
     isRegionalOrSpecial: id >= 10000,
+    speciesFlags: { legendary: false, mythical: false, baby: false },
     loadError: "This pokemon is temporarily unavailable.",
   };
 }
@@ -64,6 +94,11 @@ export function normalizePokemonSummary(raw: RawPokemon): PokemonSummary {
       home: raw.sprites.other?.home?.front_default ?? null,
     }),
     isRegionalOrSpecial: raw.id >= 10000,
+    baseStats: normalizeBaseStats(raw),
+    abilityNames: raw.abilities.map((abilitySlot) => abilitySlot.ability.name),
+    heightM: raw.height / 10,
+    weightKg: raw.weight / 10,
+    speciesFlags: { legendary: false, mythical: false, baby: false },
   };
 }
 
@@ -119,6 +154,11 @@ export function normalizePokemonDetail(
       value: stat.base_stat,
     })),
     abilities,
+    speciesFlags: {
+      legendary: species.is_legendary,
+      mythical: species.is_mythical,
+      baby: species.is_baby,
+    },
     varieties: species.varieties.map((variety) => {
       const idOrName = variety.pokemon.url.split("/").filter(Boolean).pop() ?? variety.pokemon.name;
       const numericId = Number(idOrName);

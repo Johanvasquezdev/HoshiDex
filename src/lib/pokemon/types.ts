@@ -29,6 +29,21 @@ export type PokemonMedia = {
   fallback: string;
 };
 
+export type PokemonBaseStats = {
+  hp: number;
+  attack: number;
+  defense: number;
+  specialAttack: number;
+  specialDefense: number;
+  speed: number;
+};
+
+export type PokemonSpeciesFlags = {
+  legendary: boolean;
+  mythical: boolean;
+  baby: boolean;
+};
+
 export type PokemonSummary = {
   id: number;
   name: string;
@@ -37,6 +52,11 @@ export type PokemonSummary = {
   generation: GenerationInfo | null;
   media: PokemonMedia;
   isRegionalOrSpecial: boolean;
+  baseStats?: PokemonBaseStats;
+  abilityNames?: string[];
+  heightM?: number;
+  weightKg?: number;
+  speciesFlags?: PokemonSpeciesFlags;
   loadError?: string;
 };
 
@@ -117,6 +137,9 @@ export type RawPokemon = {
 
 export type RawPokemonSpecies = {
   name: string;
+  is_legendary: boolean;
+  is_mythical: boolean;
+  is_baby: boolean;
   genera: { genus: string; language: NamedApiResource }[];
   flavor_text_entries: {
     flavor_text: string;

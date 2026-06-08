@@ -2,11 +2,19 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { WifiOff } from "lucide-react";
+import { Check, Plus, WifiOff } from "lucide-react";
 import type { PokemonSummary } from "@/lib/pokemon/types";
 import { typeColors } from "./type-styles";
 
-export function PokemonCard({ pokemon }: { pokemon: PokemonSummary }) {
+export function PokemonCard({
+  pokemon,
+  isCompared = false,
+  onToggleCompare,
+}: {
+  pokemon: PokemonSummary;
+  isCompared?: boolean;
+  onToggleCompare?: (pokemon: PokemonSummary) => void;
+}) {
   const [hovered, setHovered] = useState(false);
   const mainType = pokemon.types[0] ?? "normal";
   const background = typeColors[mainType] ?? "bg-gray-400";
@@ -30,6 +38,22 @@ export function PokemonCard({ pokemon }: { pokemon: PokemonSummary }) {
         <div className="absolute right-5 top-4 text-sm font-black tracking-wider opacity-30">
           #{pokemon.id.toString().padStart(3, "0")}
         </div>
+        {onToggleCompare && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onToggleCompare(pokemon);
+            }}
+            className={`absolute bottom-4 left-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 text-white shadow-lg backdrop-blur-md transition hover:scale-105 ${
+              isCompared ? "bg-emerald-500" : "bg-black/25 hover:bg-black/40"
+            }`}
+            aria-label={`${isCompared ? "Remove" : "Add"} ${pokemon.displayName} ${isCompared ? "from" : "to"} compare`}
+          >
+            {isCompared ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+          </button>
+        )}
         {pokemon.loadError && (
           <div className="absolute left-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-black/35 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white backdrop-blur-md">
             <WifiOff className="h-3 w-3" />
@@ -55,6 +79,11 @@ export function PokemonCard({ pokemon }: { pokemon: PokemonSummary }) {
               Detail request dropped. Cached fallback shown.
             </p>
           )}
+          <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-wide text-white/75">
+            {pokemon.heightM && <span>{pokemon.heightM.toFixed(1)}m</span>}
+            {pokemon.weightKg && <span>{pokemon.weightKg.toFixed(1)}kg</span>}
+            {pokemon.generation && <span>{pokemon.generation.region}</span>}
+          </div>
         </div>
         <div className="absolute bottom-2 right-2 z-10 flex h-28 w-28 items-end justify-center pb-2 transition-transform duration-300 group-hover:scale-110">
           <img
