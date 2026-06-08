@@ -7,6 +7,7 @@
     "build": "next build",
     "backend": "tsx backend/server.ts",
     "backend:dev": "tsx watch backend/server.ts",
+    "backend:sync": "tsx backend/sync.ts",
     "dev": "next dev --hostname 0.0.0.0 --port 5173",
     "start": "next start",
     "test": "vitest run"
