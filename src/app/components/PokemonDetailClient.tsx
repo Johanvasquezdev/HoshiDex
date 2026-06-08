@@ -42,21 +42,21 @@ export function PokemonDetailClient({ pokemon }: { pokemon: PokemonDetail }) {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-slate-50 pb-20 dark:bg-[#07090f]">
-      <section className={`relative overflow-hidden rounded-b-[3rem] bg-gradient-to-br ${gradient} pb-48 pt-10 text-white shadow-xl sm:pb-56`}>
+      <section className={`relative overflow-hidden rounded-b-[2rem] bg-gradient-to-br ${gradient} pb-8 pt-6 text-white shadow-xl sm:rounded-b-[3rem] sm:pb-56 sm:pt-10`}>
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10">
           <svg width="420" height="420" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2zm0 2a8 8 0 0 0-7.9 7h4.96a3 3 0 0 1 5.88 0h4.96A8 8 0 0 0 12 4zm0 16a8 8 0 0 0 7.9-7h-4.96a3 3 0 0 1-5.88 0H4.1A8 8 0 0 0 12 20zm0-6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
           </svg>
         </div>
         <div className="relative z-10 mx-auto max-w-5xl px-6">
-          <Link href="/" className="mb-8 inline-flex items-center gap-2 font-bold drop-shadow-md transition hover:text-white/80">
+          <Link href="/" className="mb-5 inline-flex items-center gap-2 font-bold drop-shadow-md transition hover:text-white/80 sm:mb-8">
             <ArrowLeft className="h-5 w-5" />
             Back to HoshiDex
           </Link>
           <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
             <div>
               <div className="text-lg font-black opacity-80">#{pokemon.id.toString().padStart(3, "0")}</div>
-              <h1 className="text-5xl font-black tracking-tight drop-shadow-lg sm:text-7xl">
+              <h1 className="text-4xl font-black tracking-tight drop-shadow-lg sm:text-7xl">
                 {pokemon.displayName}
               </h1>
               <p className="mt-2 text-lg font-bold opacity-85">{pokemon.genus ?? "Pokémon"}</p>
@@ -68,19 +68,19 @@ export function PokemonDetailClient({ pokemon }: { pokemon: PokemonDetail }) {
                 ))}
               </div>
             </div>
-            <div className="flex flex-wrap gap-3 sm:justify-end">
+            <div className="relative z-30 flex flex-wrap gap-3 sm:justify-end">
               <button
                 onClick={() => setAnimated((value) => !value)}
-                className="rounded-full border border-white/20 bg-white/15 px-4 py-2 text-xs font-black backdrop-blur transition hover:bg-white/25"
+                className="min-h-11 rounded-full border border-white/20 bg-white/20 px-4 py-2 text-xs font-black shadow-lg shadow-black/10 backdrop-blur transition hover:bg-white/30"
               >
                 {animated ? "Animated" : "Artwork"}
               </button>
               <button
                 onClick={() => setIsShiny((value) => !value)}
-                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-black transition ${
+                className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-xs font-black shadow-lg shadow-black/10 transition ${
                   isShiny
                     ? "border-yellow-300 bg-yellow-300 text-yellow-950"
-                    : "border-white/20 bg-white/15 text-white hover:bg-white/25"
+                    : "border-white/20 bg-white/20 text-white backdrop-blur hover:bg-white/30"
                 }`}
               >
                 <Sparkles className="h-4 w-4" />
@@ -88,12 +88,21 @@ export function PokemonDetailClient({ pokemon }: { pokemon: PokemonDetail }) {
               </button>
             </div>
           </div>
+          <div className="relative z-20 mt-5 flex h-64 items-end justify-center sm:hidden">
+            <img
+              src={heroImage}
+              alt={pokemon.displayName}
+              width={260}
+              height={260}
+              className="max-h-full max-w-full object-contain drop-shadow-2xl"
+            />
+          </div>
         </div>
       </section>
 
-      <div className="relative z-20 mx-auto -mt-40 max-w-5xl px-4 sm:px-6">
-        <section className="relative mb-10 rounded-[2rem] border border-slate-100 bg-white p-6 pt-36 shadow-2xl sm:p-10 sm:pt-48 dark:border-white/10 dark:bg-[#0d1324] dark:shadow-black/40">
-          <div className="absolute -top-36 left-1/2 z-10 flex h-72 w-72 -translate-x-1/2 items-end justify-center sm:-top-52 sm:h-96 sm:w-96">
+      <div className="relative z-20 mx-auto -mt-4 max-w-5xl px-4 sm:-mt-40 sm:px-6">
+        <section className="relative mb-10 rounded-[2rem] border border-slate-100 bg-white p-5 shadow-2xl sm:p-10 sm:pt-48 dark:border-white/10 dark:bg-[#0d1324] dark:shadow-black/40">
+          <div className="absolute -top-36 left-1/2 z-10 hidden h-72 w-72 -translate-x-1/2 items-end justify-center sm:-top-52 sm:flex sm:h-96 sm:w-96">
             <img
               src={heroImage}
               alt={pokemon.displayName}
@@ -102,23 +111,23 @@ export function PokemonDetailClient({ pokemon }: { pokemon: PokemonDetail }) {
               className="max-h-full max-w-full object-contain drop-shadow-2xl"
             />
           </div>
-          <p className="mx-auto mb-10 max-w-3xl text-center text-lg font-medium italic leading-8 text-slate-600 dark:text-slate-300">
+          <p className="mx-auto mb-8 max-w-3xl text-center text-base font-medium italic leading-8 text-slate-600 sm:mb-10 sm:text-lg dark:text-slate-300">
             “{pokemon.description}”
           </p>
-          <div className="mb-12 grid grid-cols-2 gap-4 sm:gap-8">
-            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-black/20">
+          <div className="mb-10 grid grid-cols-2 gap-3 sm:mb-12 sm:gap-8">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center shadow-sm sm:p-6 dark:border-white/10 dark:bg-white/5 dark:shadow-black/20">
               <div className="mb-2 flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 <Weight className="h-5 w-5" />
                 Weight
               </div>
-              <div className="text-2xl font-black text-slate-800 dark:text-white">{pokemon.weightKg} kg</div>
+              <div className="text-xl font-black text-slate-800 sm:text-2xl dark:text-white">{pokemon.weightKg} kg</div>
             </div>
-            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-black/20">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center shadow-sm sm:p-6 dark:border-white/10 dark:bg-white/5 dark:shadow-black/20">
               <div className="mb-2 flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 <Ruler className="h-5 w-5" />
                 Height
               </div>
-              <div className="text-2xl font-black text-slate-800 dark:text-white">{pokemon.heightM} m</div>
+              <div className="text-xl font-black text-slate-800 sm:text-2xl dark:text-white">{pokemon.heightM} m</div>
             </div>
           </div>
           <div className="grid gap-10 lg:grid-cols-[1fr_0.9fr]">
