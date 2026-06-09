@@ -134,9 +134,6 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
                 </span>
                 <div>
                   <h1 className="text-xl font-black">HoshiDex</h1>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-300">
-                    Hybrid console
-                  </p>
                 </div>
               </div>
 

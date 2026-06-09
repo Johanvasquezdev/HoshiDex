@@ -3,10 +3,10 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/pokemones", label: "Pokemones" },
+  { href: "/pokemones", label: "Pokemon" },
   { href: "/media-assets", label: "Media" },
-  { href: "/regiones", label: "Regiones" },
-  { href: "/tipos", label: "Tipos" },
+  { href: "/regiones", label: "Regions" },
+  { href: "/tipos", label: "Types" },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {

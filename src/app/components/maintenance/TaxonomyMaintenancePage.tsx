@@ -7,7 +7,7 @@ import { useMaintenanceStore } from "@/lib/maintenance/use-maintenance-store";
 export function TaxonomyMaintenancePage({ entity }: { entity: "regiones" | "tipos" }) {
   const store = useMaintenanceStore();
   const items = entity === "regiones" ? store.regions : store.types;
-  const title = entity === "regiones" ? "Regiones" : "Tipos de pokemones";
+  const title = entity === "regiones" ? "Regions" : "Pokemon Types";
   const singular = entity === "regiones" ? "region" : "type";
 
   return (
@@ -62,4 +62,3 @@ export function TaxonomyMaintenancePage({ entity }: { entity: "regiones" | "tipo
     </section>
   );
 }
-

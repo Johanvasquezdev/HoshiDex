@@ -79,7 +79,7 @@ export function PokemonFormPage({
         className="mb-6 inline-flex items-center gap-2 text-sm font-black text-slate-500 transition hover:text-red-600 dark:text-slate-400 dark:hover:text-red-300"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to pokemones
+        Back to Pokemon
       </Link>
 
       <form
@@ -208,4 +208,3 @@ function SelectField({
     </label>
   );
 }
-

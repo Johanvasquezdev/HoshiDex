@@ -31,7 +31,7 @@ export function ManagedCatalogHome() {
               System Catalog
             </h2>
             <p className="mt-1 max-w-2xl text-sm font-medium leading-6 text-slate-500 dark:text-slate-400">
-              Backend-ready list of pokemones created in the system, with region and type filters.
+              Backend-ready list of Pokemon created in the system, with region and type filters.
             </p>
             <p className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
               {store.backendEnabled

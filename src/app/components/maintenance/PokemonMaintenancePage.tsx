@@ -12,7 +12,7 @@ export function PokemonMaintenancePage() {
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-slate-950 dark:text-white">
-            Pokemones
+            Pokemon
           </h1>
           <p className="mt-2 text-sm font-semibold text-slate-500 dark:text-slate-400">
             Maintenance list with create, edit, and delete actions.
@@ -78,4 +78,3 @@ export function PokemonMaintenancePage() {
     </section>
   );
 }
-
