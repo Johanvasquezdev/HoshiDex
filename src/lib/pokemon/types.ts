@@ -29,6 +29,17 @@ export type PokemonMedia = {
   fallback: string;
 };
 
+export type PokemonShowcaseMediaAsset = {
+  id: string;
+  pokemonId: string;
+  abilityName: string;
+  game: string;
+  generation: number | null;
+  kind: "model" | "video";
+  url: string;
+  sourceUrl: string;
+};
+
 export type PokemonBaseStats = {
   hp: number;
   attack: number;
@@ -102,6 +113,7 @@ export type PokemonDetail = PokemonSummary & {
   description: string;
   stats: PokemonStat[];
   abilities: PokemonAbility[];
+  mediaAssets: PokemonShowcaseMediaAsset[];
   varieties: PokemonVariety[];
   evolution: EvolutionNode | null;
 };

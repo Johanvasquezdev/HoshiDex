@@ -10,10 +10,12 @@ import {
 } from "./backend-client";
 import { initialMaintenanceState } from "./seed";
 import type {
+  MaintenanceMediaAsset,
   MaintenancePokemon,
   MaintenanceRegion,
   MaintenanceState,
   MaintenanceType,
+  MediaAssetFormValues,
   PokemonFormValues,
 } from "./types";
 
@@ -49,6 +51,7 @@ function readState(): MaintenanceState {
       regions: parsed.regions?.length ? parsed.regions : initialMaintenanceState.regions,
       types: parsed.types?.length ? parsed.types : initialMaintenanceState.types,
       pokemon: parsed.pokemon ?? initialMaintenanceState.pokemon,
+      mediaAssets: parsed.mediaAssets ?? initialMaintenanceState.mediaAssets,
     };
   } catch {
     return initialMaintenanceState;
@@ -173,11 +176,49 @@ export function useMaintenanceStore() {
       setState((current) => ({
         ...current,
         pokemon: current.pokemon.filter((pokemon) => pokemon.id !== id),
+        mediaAssets: current.mediaAssets.filter((asset) => asset.pokemonId !== id),
       }));
       syncBackend(() => deleteMaintenanceEntity("pokemon", id));
+    },
+    createMediaAsset(values: MediaAssetFormValues) {
+      const mediaAsset = {
+        ...values,
+        id: createId(
+          `${values.pokemonId}-${values.kind}-${values.abilityName || values.game || "asset"}`,
+          state.mediaAssets.map((item) => item.id),
+        ),
+      };
+      setState((current) => ({
+        ...current,
+        mediaAssets: [mediaAsset, ...current.mediaAssets],
+      }));
+      syncBackend(() => createMaintenanceEntity("mediaAssets", mediaAsset));
+    },
+    updateMediaAsset(id: string, values: MediaAssetFormValues) {
+      setState((current) => ({
+        ...current,
+        mediaAssets: current.mediaAssets.map((asset) =>
+          asset.id === id ? { ...asset, ...values } : asset,
+        ),
+      }));
+      syncBackend(() => updateMaintenanceEntity("mediaAssets", id, values));
+    },
+    deleteMediaAsset(id: string) {
+      setState((current) => ({
+        ...current,
+        mediaAssets: current.mediaAssets.filter((asset) => asset.id !== id),
+      }));
+      syncBackend(() => deleteMaintenanceEntity("mediaAssets", id));
     },
   };
 }
 
 export type MaintenanceStore = ReturnType<typeof useMaintenanceStore>;
-export type { MaintenancePokemon, MaintenanceRegion, MaintenanceType, PokemonFormValues };
+export type {
+  MaintenanceMediaAsset,
+  MaintenancePokemon,
+  MaintenanceRegion,
+  MaintenanceType,
+  MediaAssetFormValues,
+  PokemonFormValues,
+};

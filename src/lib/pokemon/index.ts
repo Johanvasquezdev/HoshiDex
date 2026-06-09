@@ -14,6 +14,7 @@ import {
   type PokemonVariantFilter,
 } from "./filters";
 import { extractIdFromUrl, pokeApiFetch } from "./pokeapi-client";
+import { fetchMediaAssetsForPokemon } from "@/lib/maintenance/backend-client";
 import {
   normalizeAbility,
   createUnavailablePokemonSummary,
@@ -94,7 +95,7 @@ export async function getPokemonDetail(idOrName: string): Promise<PokemonDetail>
   const pokemon = await pokeApiFetch<RawPokemon>(`/pokemon/${idOrName}`);
   const species = await pokeApiFetch<RawPokemonSpecies>(pokemon.species.url);
 
-  const [abilities, evolutionChain] = await Promise.all([
+  const [abilities, evolutionChain, mediaAssets] = await Promise.all([
     Promise.all(
       pokemon.abilities.map(async (abilitySlot) => {
         try {
@@ -108,9 +109,12 @@ export async function getPokemonDetail(idOrName: string): Promise<PokemonDetail>
     pokeApiFetch<RawEvolutionChain>(species.evolution_chain.url)
       .then((chain) => normalizeEvolutionNode(chain.chain))
       .catch(() => null),
+    fetchMediaAssetsForPokemon(pokemon.name).then((assets) =>
+      assets.length ? assets : fetchMediaAssetsForPokemon(String(pokemon.id)),
+    ).catch(() => []),
   ]);
 
-  return normalizePokemonDetail(pokemon, species, abilities, evolutionChain);
+  return normalizePokemonDetail(pokemon, species, abilities, evolutionChain, mediaAssets);
 }
 
 export * from "./generations";

@@ -1,12 +1,13 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, MeshDistortMaterial, OrbitControls, Sphere } from "@react-three/drei";
+import { Bounds, Environment, MeshDistortMaterial, OrbitControls, Sphere, useGLTF } from "@react-three/drei";
 import { Box, Clapperboard, Info, Sparkles } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { Component, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 import { buildAbilityMediaShowcase } from "@/lib/pokemon/showcase";
-import type { PokemonAbility } from "@/lib/pokemon/types";
+import type { PokemonAbility, PokemonShowcaseMediaAsset } from "@/lib/pokemon/types";
+import { useMaintenanceStore } from "@/lib/maintenance/use-maintenance-store";
 
 function EnergyOrb({ color }: { color: string }) {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -31,6 +32,47 @@ function EnergyOrb({ color }: { color: string }) {
   );
 }
 
+function ModelAsset({ url }: { url: string }) {
+  const gltf = useGLTF(url);
+  const scene = useMemo(() => gltf.scene.clone(), [gltf.scene]);
+
+  return (
+    <Bounds fit clip observe margin={1.2}>
+      <primitive object={scene} />
+    </Bounds>
+  );
+}
+
+class ModelErrorBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidUpdate(previousProps: { children: ReactNode; fallback: ReactNode }) {
+    if (previousProps.children !== this.props.children && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
+function normalizePokemonKey(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 export function AbilityShowcase({
   pokemonName,
   mainType,
@@ -39,6 +81,7 @@ export function AbilityShowcase({
   generationLabel,
   modelUrl,
   videoUrl,
+  mediaAssets = [],
 }: {
   pokemonName: string;
   mainType: string;
@@ -47,7 +90,22 @@ export function AbilityShowcase({
   generationLabel: string;
   modelUrl: string | null;
   videoUrl: string | null;
+  mediaAssets?: PokemonShowcaseMediaAsset[];
 }) {
+  const store = useMaintenanceStore();
+  const pokemonKey = normalizePokemonKey(pokemonName);
+  const storeMediaAssets = useMemo(() => {
+    return store.mediaAssets.filter((asset) => {
+      if (asset.pokemonId === pokemonKey) return true;
+      const managedPokemon = store.pokemon.find((item) => item.id === asset.pokemonId);
+      return managedPokemon ? normalizePokemonKey(managedPokemon.name) === pokemonKey : false;
+    });
+  }, [pokemonKey, store.mediaAssets, store.pokemon]);
+  const mergedMediaAssets = useMemo(() => {
+    const byId = new Map<string, PokemonShowcaseMediaAsset>();
+    [...mediaAssets, ...storeMediaAssets].forEach((asset) => byId.set(asset.id, asset));
+    return Array.from(byId.values());
+  }, [mediaAssets, storeMediaAssets]);
   const showcase = useMemo(
     () =>
       buildAbilityMediaShowcase({
@@ -57,11 +115,18 @@ export function AbilityShowcase({
         abilities,
         modelUrl,
         videoUrl,
+        mediaAssets: mergedMediaAssets,
       }),
-    [abilities, generationLabel, mainType, modelUrl, pokemonName, videoUrl],
+    [abilities, generationLabel, mainType, mergedMediaAssets, modelUrl, pokemonName, videoUrl],
   );
   const [selectedAssetId, setSelectedAssetId] = useState(showcase.assets[0]?.id ?? "");
   const selectedAsset = showcase.assets.find((asset) => asset.id === selectedAssetId) ?? showcase.assets[0];
+
+  useEffect(() => {
+    if (!showcase.assets.some((asset) => asset.id === selectedAssetId)) {
+      setSelectedAssetId(showcase.assets[0]?.id ?? "");
+    }
+  }, [selectedAssetId, showcase.assets]);
 
   return (
     <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-2xl sm:p-10">
@@ -72,7 +137,7 @@ export function AbilityShowcase({
           Ability Showcase
         </h2>
         <p className="mb-6 max-w-2xl text-sm font-medium leading-6 text-slate-400">
-          A media-ready stage for {pokemonName}. Each ability now has a game, generation, model, and video slot that can connect to backend media later.
+          A media-ready stage for {pokemonName}. Add model or video rows in Media Assets to replace placeholder energy with real showcase footage.
         </p>
         <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black/50 shadow-2xl">
           {selectedAsset?.kind === "video" && selectedAsset.url ? (
@@ -82,7 +147,15 @@ export function AbilityShowcase({
               <ambientLight intensity={0.5} />
               <directionalLight position={[10, 10, 5]} intensity={1} />
               <Environment preset="city" />
-              <EnergyOrb color={color} />
+              {selectedAsset?.kind === "model" && selectedAsset.url ? (
+                <ModelErrorBoundary fallback={<EnergyOrb color={color} />}>
+                  <Suspense fallback={<EnergyOrb color={color} />}>
+                    <ModelAsset url={selectedAsset.url} />
+                  </Suspense>
+                </ModelErrorBoundary>
+              ) : (
+                <EnergyOrb color={color} />
+              )}
               <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={2} />
             </Canvas>
           )}
@@ -101,9 +174,19 @@ export function AbilityShowcase({
               <span className="rounded-full bg-white/10 px-3 py-1">{selectedAsset.game}</span>
               <span className="rounded-full bg-white/10 px-3 py-1">{selectedAsset.generationLabel}</span>
               <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">
-                {selectedAsset.kind === "model" ? <Box className="h-3 w-3" /> : <Clapperboard className="h-3 w-3" />}
+                {selectedAsset.kind === "model" && <Box className="h-3 w-3" />}
+                {selectedAsset.kind === "video" && <Clapperboard className="h-3 w-3" />}
+                {selectedAsset.kind === "placeholder" && <Sparkles className="h-3 w-3" />}
                 {selectedAsset.kind}
               </span>
+              {selectedAsset.sourceUrl && (
+                <a
+                  href={selectedAsset.sourceUrl}
+                  className="rounded-full bg-white/10 px-3 py-1 transition hover:bg-white/20"
+                >
+                  Source
+                </a>
+              )}
             </div>
           </div>
         )}

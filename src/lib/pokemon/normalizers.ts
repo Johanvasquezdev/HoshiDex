@@ -5,6 +5,7 @@ import type {
   PokemonBaseStats,
   PokemonAbility,
   PokemonDetail,
+  PokemonShowcaseMediaAsset,
   PokemonSummary,
   RawAbility,
   RawEvolutionChainNode,
@@ -133,6 +134,7 @@ export function normalizePokemonDetail(
   species: RawPokemonSpecies,
   abilities: PokemonAbility[],
   evolution: EvolutionNode | null,
+  mediaAssets: PokemonShowcaseMediaAsset[] = [],
 ): PokemonDetail {
   const summary = normalizePokemonSummary(raw);
   const flavor = species.flavor_text_entries.find(
@@ -154,6 +156,7 @@ export function normalizePokemonDetail(
       value: stat.base_stat,
     })),
     abilities,
+    mediaAssets,
     speciesFlags: {
       legendary: species.is_legendary,
       mythical: species.is_mythical,

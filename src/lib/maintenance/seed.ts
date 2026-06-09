@@ -52,4 +52,5 @@ export const initialMaintenanceState: MaintenanceState = {
       secondaryTypeId: "dark",
     },
   ],
+  mediaAssets: [],
 };

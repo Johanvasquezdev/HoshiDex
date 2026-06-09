@@ -4,6 +4,7 @@ import { ThemeToggle } from "./ThemeToggle";
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/pokemones", label: "Pokemones" },
+  { href: "/media-assets", label: "Media" },
   { href: "/regiones", label: "Regiones" },
   { href: "/tipos", label: "Tipos" },
 ];

@@ -202,6 +202,7 @@ export function PokemonDetailClient({ pokemon }: { pokemon: PokemonDetail }) {
           generationLabel={pokemon.generation?.label ?? "Special Form"}
           modelUrl={pokemon.media.modelUrl}
           videoUrl={pokemon.media.videoUrl}
+          mediaAssets={pokemon.mediaAssets}
         />
       </div>
     </div>

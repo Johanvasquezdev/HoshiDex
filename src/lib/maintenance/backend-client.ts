@@ -1,17 +1,25 @@
-import type { MaintenancePokemon, MaintenanceRegion, MaintenanceState, MaintenanceType } from "./types";
+import type {
+  MaintenanceMediaAsset,
+  MaintenancePokemon,
+  MaintenanceRegion,
+  MaintenanceState,
+  MaintenanceType,
+} from "./types";
 import { hasSupabaseConfig, supabase } from "../supabase/client";
 
-type Entity = "pokemon" | "regions" | "types";
+type Entity = "pokemon" | "regions" | "types" | "mediaAssets";
 type EntityMap = {
   pokemon: MaintenancePokemon;
   regions: MaintenanceRegion;
   types: MaintenanceType;
+  mediaAssets: MaintenanceMediaAsset;
 };
 
 const ENDPOINTS: Record<Entity, string> = {
   pokemon: "pokemones",
   regions: "regiones",
   types: "tipos",
+  mediaAssets: "media-assets",
 };
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_POKEDEX_BACKEND_URL?.replace(/\/$/, "") ?? "";
@@ -50,6 +58,17 @@ type SupabasePokemonRow = {
   secondary_type_id: string | null;
 };
 
+type SupabaseMediaAssetRow = {
+  id: string;
+  pokemon_id: string;
+  ability_name: string | null;
+  game: string | null;
+  generation: number | null;
+  kind: "model" | "video";
+  url: string;
+  source_url: string | null;
+};
+
 function assertSupabase() {
   if (!supabase) throw new Error("Supabase is not configured");
   return supabase;
@@ -77,6 +96,32 @@ function toPokemonRow(value: MaintenancePokemon | Omit<MaintenancePokemon, "id">
   };
 }
 
+function toMediaAsset(row: SupabaseMediaAssetRow): MaintenanceMediaAsset {
+  return {
+    id: row.id,
+    pokemonId: row.pokemon_id,
+    abilityName: row.ability_name ?? "",
+    game: row.game ?? "",
+    generation: row.generation,
+    kind: row.kind,
+    url: row.url,
+    sourceUrl: row.source_url ?? "",
+  };
+}
+
+function toMediaAssetRow(value: MaintenanceMediaAsset | Omit<MaintenanceMediaAsset, "id">) {
+  return {
+    ...("id" in value ? { id: value.id } : {}),
+    pokemon_id: value.pokemonId,
+    ability_name: value.abilityName.trim() || null,
+    game: value.game.trim() || null,
+    generation: value.generation,
+    kind: value.kind,
+    url: value.url,
+    source_url: value.sourceUrl.trim() || null,
+  };
+}
+
 async function throwIfSupabaseError(error: { message: string } | null) {
   if (error) throw new Error(`Supabase request failed: ${error.message}`);
 }
@@ -88,28 +133,35 @@ async function fetchSupabaseMaintenanceState(): Promise<MaintenanceState> {
     client.from("regiones").select("id,name").order("name"),
     client.from("tipos").select("id,name").order("name"),
   ]);
+  const mediaAssetsResult = await client
+    .from("pokemon_media_assets")
+    .select("*")
+    .order("created_at", { ascending: false });
 
   await throwIfSupabaseError(pokemonResult.error);
   await throwIfSupabaseError(regionsResult.error);
   await throwIfSupabaseError(typesResult.error);
+  await throwIfSupabaseError(mediaAssetsResult.error);
 
   return {
     pokemon: ((pokemonResult.data ?? []) as SupabasePokemonRow[]).map(toPokemon),
     regions: (regionsResult.data ?? []) as MaintenanceRegion[],
     types: (typesResult.data ?? []) as MaintenanceType[],
+    mediaAssets: ((mediaAssetsResult.data ?? []) as SupabaseMediaAssetRow[]).map(toMediaAsset),
   };
 }
 
 export async function fetchMaintenanceState(): Promise<MaintenanceState> {
   if (hasSupabaseConfig()) return fetchSupabaseMaintenanceState();
 
-  const [pokemon, regions, types] = await Promise.all([
+  const [pokemon, regions, types, mediaAssets] = await Promise.all([
     request<MaintenancePokemon[]>(endpoint("pokemon")),
     request<MaintenanceRegion[]>(endpoint("regions")),
     request<MaintenanceType[]>(endpoint("types")),
+    request<MaintenanceMediaAsset[]>(endpoint("mediaAssets")),
   ]);
 
-  return { pokemon, regions, types };
+  return { pokemon, regions, types, mediaAssets };
 }
 
 export async function createMaintenanceEntity<E extends Entity>(
@@ -118,12 +170,19 @@ export async function createMaintenanceEntity<E extends Entity>(
 ) {
   if (hasSupabaseConfig()) {
     const client = assertSupabase();
-    const table = ENDPOINTS[entity];
-    const row = entity === "pokemon" ? toPokemonRow(value as MaintenancePokemon) : value;
+    const table = entity === "mediaAssets" ? "pokemon_media_assets" : ENDPOINTS[entity];
+    const row =
+      entity === "pokemon"
+        ? toPokemonRow(value as unknown as MaintenancePokemon)
+        : entity === "mediaAssets"
+          ? toMediaAssetRow(value as unknown as MaintenanceMediaAsset)
+          : value;
     const { data, error } = await (client.from(table) as any).insert(row).select().single();
 
     await throwIfSupabaseError(error);
-    return entity === "pokemon" ? toPokemon(data as SupabasePokemonRow) : (data as EntityMap[E]);
+    if (entity === "pokemon") return toPokemon(data as SupabasePokemonRow) as EntityMap[E];
+    if (entity === "mediaAssets") return toMediaAsset(data as SupabaseMediaAssetRow) as EntityMap[E];
+    return data as EntityMap[E];
   }
 
   return request<EntityMap[E]>(endpoint(entity), {
@@ -139,8 +198,13 @@ export async function updateMaintenanceEntity<E extends Entity>(
 ) {
   if (hasSupabaseConfig()) {
     const client = assertSupabase();
-    const table = ENDPOINTS[entity];
-    const row = entity === "pokemon" ? toPokemonRow(value as MaintenancePokemon) : value;
+    const table = entity === "mediaAssets" ? "pokemon_media_assets" : ENDPOINTS[entity];
+    const row =
+      entity === "pokemon"
+        ? toPokemonRow(value as unknown as MaintenancePokemon)
+        : entity === "mediaAssets"
+          ? toMediaAssetRow(value as unknown as MaintenanceMediaAsset)
+          : value;
     const { data, error } = await (client.from(table) as any)
       .update(row)
       .eq("id", id)
@@ -148,7 +212,9 @@ export async function updateMaintenanceEntity<E extends Entity>(
       .single();
 
     await throwIfSupabaseError(error);
-    return entity === "pokemon" ? toPokemon(data as SupabasePokemonRow) : (data as EntityMap[E]);
+    if (entity === "pokemon") return toPokemon(data as SupabasePokemonRow) as EntityMap[E];
+    if (entity === "mediaAssets") return toMediaAsset(data as SupabaseMediaAssetRow) as EntityMap[E];
+    return data as EntityMap[E];
   }
 
   return request<EntityMap[E]>(endpoint(entity, id), {
@@ -160,10 +226,31 @@ export async function updateMaintenanceEntity<E extends Entity>(
 export async function deleteMaintenanceEntity(entity: Entity, id: string) {
   if (hasSupabaseConfig()) {
     const client = assertSupabase();
-    const { error } = await (client.from(ENDPOINTS[entity]) as any).delete().eq("id", id);
+    const table = entity === "mediaAssets" ? "pokemon_media_assets" : ENDPOINTS[entity];
+    const { error } = await (client.from(table) as any).delete().eq("id", id);
     await throwIfSupabaseError(error);
     return;
   }
 
   await request<void>(endpoint(entity, id), { method: "DELETE" });
+}
+
+export async function fetchMediaAssetsForPokemon(pokemonId: string): Promise<MaintenanceMediaAsset[]> {
+  if (hasSupabaseConfig()) {
+    const client = assertSupabase();
+    const { data, error } = await client
+      .from("pokemon_media_assets")
+      .select("*")
+      .eq("pokemon_id", pokemonId)
+      .order("created_at", { ascending: false });
+
+    await throwIfSupabaseError(error);
+    return ((data ?? []) as SupabaseMediaAssetRow[]).map(toMediaAsset);
+  }
+
+  if (!BACKEND_URL) return [];
+
+  return request<MaintenanceMediaAsset[]>(
+    `${endpoint("mediaAssets")}?pokemonId=${encodeURIComponent(pokemonId)}`,
+  );
 }
