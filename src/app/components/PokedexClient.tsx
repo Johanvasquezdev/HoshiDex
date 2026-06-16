@@ -124,12 +124,12 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
 
   return (
     <section className="px-3 py-6 sm:px-5 lg:px-8">
-      <div className="mx-auto max-w-[1500px] rounded-[2rem] border border-red-900/30 bg-red-700 p-3 shadow-2xl shadow-red-950/25 dark:border-red-400/20 dark:bg-red-950">
-        <div className="rounded-[1.5rem] bg-[#060912] p-3 shadow-inner shadow-black/50">
+      <div className="mx-auto max-w-[1500px] rounded-[2rem] border border-red-200 bg-red-100 p-3 shadow-2xl shadow-red-200/60 dark:border-red-400/20 dark:bg-red-950 dark:shadow-red-950/25">
+        <div className="rounded-[1.5rem] bg-white p-3 shadow-inner shadow-red-100/80 dark:bg-[#060912] dark:shadow-black/50">
           <div className="grid gap-4 xl:grid-cols-[210px_minmax(0,1fr)_340px]">
-            <aside className="rounded-[1.4rem] border border-white/10 bg-[#101827] p-4 text-white">
+            <aside className="rounded-[1.4rem] border border-slate-200 bg-slate-50 p-4 text-slate-950 shadow-sm dark:border-white/10 dark:bg-[#101827] dark:text-white dark:shadow-none">
               <div className="mb-6 flex items-center gap-3">
-                <span className="grid h-12 w-12 place-items-center rounded-full border border-sky-200/40 bg-sky-400/20 shadow-lg shadow-sky-950/40">
+                <span className="grid h-12 w-12 place-items-center rounded-full border border-sky-200 bg-sky-100 shadow-lg shadow-sky-200/70 dark:border-sky-200/40 dark:bg-sky-400/20 dark:shadow-sky-950/40">
                   <span className="h-6 w-6 rounded-full bg-sky-300 shadow-[0_0_24px_rgba(125,211,252,0.95)]" />
                 </span>
                 <div>
@@ -148,8 +148,8 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
                     }}
                     className={`flex w-full items-center justify-between rounded-2xl border px-3 py-2.5 text-left text-xs font-black transition ${
                       generation === filter.id
-                        ? "border-red-200/60 bg-red-500 text-white shadow-lg shadow-red-950/30"
-                        : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                        ? "border-red-500 bg-red-500 text-white shadow-lg shadow-red-200/70 dark:border-red-200/60 dark:shadow-red-950/30"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-red-200 hover:bg-red-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
                     }`}
                   >
                     <span>{filter.region}</span>
@@ -160,22 +160,22 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
                 ))}
               </div>
 
-              <div className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200">
+              <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-300/20 dark:bg-emerald-400/10">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-200">
                   Living Dex
                 </p>
-                <p className="mt-2 text-lg font-black text-white">417 / 1025</p>
-                <div className="mt-3 h-2 rounded-full bg-white/10">
+                <p className="mt-2 text-lg font-black text-slate-950 dark:text-white">417 / 1025</p>
+                <div className="mt-3 h-2 rounded-full bg-emerald-100 dark:bg-white/10">
                   <div className="h-full w-[41%] rounded-full bg-emerald-400" />
                 </div>
               </div>
             </aside>
 
             <div className="min-w-0">
-              <div className="mb-4 rounded-[1.4rem] border border-white/10 bg-[#101827] p-4 text-white shadow-xl shadow-black/20">
+              <div className="mb-4 rounded-[1.4rem] border border-slate-200 bg-slate-50 p-4 text-slate-950 shadow-xl shadow-slate-200/70 dark:border-white/10 dark:bg-[#101827] dark:text-white dark:shadow-black/20">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-red-300">
+                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-red-600 dark:text-red-300">
                       Encyclopedia scanner
                     </p>
                     <h2 className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">
@@ -183,10 +183,10 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
                         ? "National research index"
                         : `${GENERATION_FILTERS.find((item) => item.id === generation)?.region ?? "Special"} dossier`}
                     </h2>
-                    <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-300">
+                    <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-600 dark:text-slate-300">
                       Filter, inspect, and compare Pokemon in a device-style console built for every generation.
                     </p>
-                    <p className="mt-2 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+                    <p className="mt-2 text-xs font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-500">
                       {statusText} {activeFilterCount > 0 ? `• ${activeFilterCount} filters active` : ""}
                     </p>
                   </div>
@@ -199,7 +199,7 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
                         placeholder="Search Pokemon..."
-                        className="block w-full rounded-2xl border border-white/10 bg-white/10 py-3 pl-11 pr-4 text-sm font-bold text-white outline-none transition placeholder:text-slate-500 focus:border-red-300/60 focus:ring-2 focus:ring-red-400/30"
+                        className="block w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm font-bold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-red-400 focus:ring-2 focus:ring-red-400/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-red-300/60"
                       />
                     </label>
                     <label className="relative">
@@ -208,7 +208,7 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
                       <select
                         value={sort}
                         onChange={(event) => setSort(event.target.value)}
-                        className="block w-full cursor-pointer appearance-none rounded-2xl border border-white/10 bg-[#111827] py-2.5 pl-9 pr-3 text-xs font-black text-slate-100 outline-none focus:border-red-300/60"
+                        className="block w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-xs font-black text-slate-800 outline-none focus:border-red-400 dark:border-white/10 dark:bg-[#111827] dark:text-slate-100 dark:focus:border-red-300/60"
                       >
                         <option value="regional-mix">Regional Mix</option>
                         <option value="dex">National Dex</option>
@@ -226,7 +226,7 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
                           setVariant(nextVariant);
                           setGeneration((current) => getCompatibleGenerationFilter(current, nextVariant));
                         }}
-                        className="block w-full cursor-pointer appearance-none rounded-2xl border border-white/10 bg-[#111827] py-2.5 pl-9 pr-3 text-xs font-black text-slate-100 outline-none focus:border-red-300/60"
+                        className="block w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-xs font-black text-slate-800 outline-none focus:border-red-400 dark:border-white/10 dark:bg-[#111827] dark:text-slate-100 dark:focus:border-red-300/60"
                       >
                         <option value="all">All Forms</option>
                         <option value="shiny">Shiny Available</option>
@@ -240,9 +240,9 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
               </div>
 
               {query.isError ? (
-                <div className="rounded-[1.4rem] border border-red-300/30 bg-red-950/50 px-6 py-16 text-center text-white">
+                <div className="rounded-[1.4rem] border border-red-200 bg-red-50 px-6 py-16 text-center text-slate-950 dark:border-red-300/30 dark:bg-red-950/50 dark:text-white">
                   <h2 className="text-lg font-black">The HoshiDex signal dropped</h2>
-                  <p className="mt-2 text-red-100">Refresh or try a narrower scan.</p>
+                  <p className="mt-2 text-red-700 dark:text-red-100">Refresh or try a narrower scan.</p>
                 </div>
               ) : (
                 <>
@@ -262,9 +262,9 @@ export function PokedexClient({ initialData }: { initialData: PokemonListRespons
                   </div>
 
                   {data.items.length === 0 && (
-                    <div className="rounded-[1.4rem] border border-white/10 bg-[#101827] py-16 text-center text-white">
+                    <div className="rounded-[1.4rem] border border-slate-200 bg-slate-50 py-16 text-center text-slate-950 dark:border-white/10 dark:bg-[#101827] dark:text-white">
                       <h2 className="text-lg font-black">No scan matches</h2>
-                      <p className="mt-2 text-slate-400">Clear filters or try another region.</p>
+                      <p className="mt-2 text-slate-500 dark:text-slate-400">Clear filters or try another region.</p>
                       <button
                         type="button"
                         onClick={() => setAdvancedFilters(DEFAULT_ADVANCED_FILTERS)}

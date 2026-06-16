@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Bounds, Environment, MeshDistortMaterial, OrbitControls, Sphere, useGLTF } from "@react-three/drei";
+import { Bounds, MeshDistortMaterial, OrbitControls, Sphere, useGLTF } from "@react-three/drei";
 import { Box, Clapperboard, Info, Sparkles } from "lucide-react";
 import { Component, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
@@ -146,7 +146,6 @@ export function AbilityShowcase({
             <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
               <ambientLight intensity={0.5} />
               <directionalLight position={[10, 10, 5]} intensity={1} />
-              <Environment preset="city" />
               {selectedAsset?.kind === "model" && selectedAsset.url ? (
                 <ModelErrorBoundary fallback={<EnergyOrb color={color} />}>
                   <Suspense fallback={<EnergyOrb color={color} />}>
