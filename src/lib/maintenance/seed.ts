@@ -22,6 +22,7 @@ export const initialMaintenanceState: MaintenanceState = {
     { id: "electric", name: "Electric" },
     { id: "psychic", name: "Psychic" },
     { id: "dragon", name: "Dragon" },
+    { id: "ground", name: "Ground" },
   ],
   pokemon: [
     {
@@ -50,6 +51,15 @@ export const initialMaintenanceState: MaintenanceState = {
       regionId: "kalos",
       primaryTypeId: "water",
       secondaryTypeId: "dark",
+    },
+    {
+      id: "zygarde",
+      name: "Zygarde",
+      imageUrl:
+        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/718.png",
+      regionId: "kalos",
+      primaryTypeId: "dragon",
+      secondaryTypeId: "ground",
     },
   ],
   mediaAssets: [],

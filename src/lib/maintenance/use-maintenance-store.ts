@@ -20,6 +20,12 @@ import type {
 } from "./types";
 
 const STORAGE_KEY = "hoshidex-maintenance-v1";
+const STORAGE_VERSION = 2;
+
+type PersistedMaintenanceState = {
+  version: number;
+  state: MaintenanceState;
+};
 
 function slugify(value: string) {
   return value
@@ -40,19 +46,55 @@ function createId(value: string, existingIds: string[]) {
   return id;
 }
 
+function mergeSeededList<T extends { id: string }>(seeded: T[], stored: T[] | undefined) {
+  const byId = new Map(seeded.map((item) => [item.id, item]));
+
+  (stored ?? []).forEach((item) => {
+    byId.set(item.id, item);
+  });
+
+  return Array.from(byId.values());
+}
+
+function normalizeStoredState(state: Partial<MaintenanceState> | undefined): MaintenanceState {
+  return {
+    regions: state?.regions?.length ? state.regions : initialMaintenanceState.regions,
+    types: state?.types?.length ? state.types : initialMaintenanceState.types,
+    pokemon: state?.pokemon ?? initialMaintenanceState.pokemon,
+    mediaAssets: state?.mediaAssets ?? initialMaintenanceState.mediaAssets,
+  };
+}
+
+function isPersistedMaintenanceState(value: unknown): value is PersistedMaintenanceState {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<PersistedMaintenanceState>;
+  return typeof candidate.version === "number" && Boolean(candidate.state);
+}
+
+function migrateStoredState(state: Partial<MaintenanceState> | undefined): MaintenanceState {
+  return {
+    regions: mergeSeededList(initialMaintenanceState.regions, state?.regions),
+    types: mergeSeededList(initialMaintenanceState.types, state?.types),
+    pokemon: mergeSeededList(initialMaintenanceState.pokemon, state?.pokemon),
+    mediaAssets: state?.mediaAssets ?? initialMaintenanceState.mediaAssets,
+  };
+}
+
 function readState(): MaintenanceState {
   if (typeof window === "undefined") return initialMaintenanceState;
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (!stored) return initialMaintenanceState;
 
   try {
-    const parsed = JSON.parse(stored) as MaintenanceState;
-    return {
-      regions: parsed.regions?.length ? parsed.regions : initialMaintenanceState.regions,
-      types: parsed.types?.length ? parsed.types : initialMaintenanceState.types,
-      pokemon: parsed.pokemon ?? initialMaintenanceState.pokemon,
-      mediaAssets: parsed.mediaAssets ?? initialMaintenanceState.mediaAssets,
-    };
+    const parsed = JSON.parse(stored) as MaintenanceState | PersistedMaintenanceState;
+
+    if (isPersistedMaintenanceState(parsed)) {
+      return parsed.version >= STORAGE_VERSION
+        ? normalizeStoredState(parsed.state)
+        : migrateStoredState(parsed.state);
+    }
+
+    return migrateStoredState(parsed);
   } catch {
     return initialMaintenanceState;
   }
@@ -77,7 +119,10 @@ export function useMaintenanceStore() {
 
   useEffect(() => {
     if (!ready || hasMaintenanceBackend()) return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ version: STORAGE_VERSION, state }),
+    );
   }, [ready, state]);
 
   function syncBackend(task: () => Promise<unknown>) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Bounds, MeshDistortMaterial, OrbitControls, Sphere, useGLTF } from "@react-three/drei";
+import { Bounds, Environment, MeshDistortMaterial, OrbitControls, Sphere, useGLTF } from "@react-three/drei";
 import { Box, Clapperboard, Info, Sparkles } from "lucide-react";
 import { Component, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
@@ -29,6 +29,25 @@ function EnergyOrb({ color }: { color: string }) {
         metalness={0.75}
       />
     </Sphere>
+  );
+}
+
+function GeneratedEnvironment() {
+  return (
+    <Environment frames={1} resolution={128}>
+      <mesh position={[0, 4, -5]} scale={4}>
+        <sphereGeometry args={[1, 32, 32]} />
+        <meshBasicMaterial color="#ffffff" />
+      </mesh>
+      <mesh position={[-5, -1, 2]} scale={3}>
+        <sphereGeometry args={[1, 32, 32]} />
+        <meshBasicMaterial color="#93c5fd" />
+      </mesh>
+      <mesh position={[4, 1, 3]} scale={2.5}>
+        <sphereGeometry args={[1, 32, 32]} />
+        <meshBasicMaterial color="#fb7185" />
+      </mesh>
+    </Environment>
   );
 }
 
@@ -129,21 +148,22 @@ export function AbilityShowcase({
   }, [selectedAssetId, showcase.assets]);
 
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white p-6 text-slate-950 shadow-2xl shadow-slate-200/70 sm:p-10 dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/40">
+    <section className="relative overflow-hidden rounded-[1.5rem] border border-slate-100 bg-white p-4 text-slate-950 shadow-2xl shadow-slate-200/70 sm:rounded-[2rem] sm:p-10 dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/40">
       <div className="absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(239,68,68,0.16),transparent_25%),radial-gradient(circle_at_80%_40%,rgba(14,165,233,0.14),transparent_18%)] dark:opacity-10 dark:[background-image:radial-gradient(circle_at_20%_20%,white,transparent_25%),radial-gradient(circle_at_80%_40%,white,transparent_18%)]" />
       <div className="relative z-10">
-        <h2 className="mb-2 flex items-center gap-3 text-2xl font-black sm:text-3xl">
-          <Sparkles className="h-7 w-7 fill-red-500 text-red-500 dark:fill-white dark:text-white" />
+        <h2 className="mb-2 flex items-center gap-3 text-xl font-black sm:text-3xl">
+          <Sparkles className="h-6 w-6 fill-red-500 text-red-500 sm:h-7 sm:w-7 dark:fill-white dark:text-white" />
           Ability Showcase
         </h2>
         <p className="mb-6 max-w-2xl text-sm font-medium leading-6 text-slate-600 dark:text-slate-400">
           A media-ready stage for {pokemonName}. Add model or video rows in Media Assets to replace placeholder energy with real showcase footage.
         </p>
-        <div className="relative aspect-video overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-2xl shadow-slate-200/70 dark:border-white/10 dark:bg-black/50 dark:shadow-black/40">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-2xl shadow-slate-200/70 sm:aspect-video dark:border-white/10 dark:bg-black/50 dark:shadow-black/40">
           {selectedAsset?.kind === "video" && selectedAsset.url ? (
             <video src={selectedAsset.url} className="h-full w-full object-cover" controls />
           ) : (
             <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+              <GeneratedEnvironment />
               <ambientLight intensity={0.5} />
               <directionalLight position={[10, 10, 5]} intensity={1} />
               {selectedAsset?.kind === "model" && selectedAsset.url ? (
@@ -158,14 +178,14 @@ export function AbilityShowcase({
               <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={2} />
             </Canvas>
           )}
-          <div className="pointer-events-none absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-white/85 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-lg shadow-slate-300/50 backdrop-blur-md dark:bg-black/60 dark:text-white dark:shadow-none">
+          <div className="pointer-events-none absolute bottom-3 right-3 flex max-w-[calc(100%-1.5rem)] items-center gap-2 rounded-full bg-white/85 px-3 py-1.5 text-[11px] font-bold text-slate-900 shadow-lg shadow-slate-300/50 backdrop-blur-md sm:bottom-4 sm:right-4 sm:text-xs dark:bg-black/60 dark:text-white dark:shadow-none">
             <Info className="h-3.5 w-3.5" />
             {selectedAsset?.kind === "placeholder" ? `${mainType} energy` : selectedAsset?.kind}
           </div>
         </div>
         {selectedAsset && (
-          <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:grid-cols-[1fr_auto] sm:items-center dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none">
-            <div>
+          <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 shadow-sm sm:grid-cols-[1fr_auto] sm:items-center sm:p-4 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none">
+            <div className="min-w-0">
               <div className="text-sm font-black">{selectedAsset.label}</div>
               <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-400">{selectedAsset.description}</p>
             </div>
@@ -189,13 +209,13 @@ export function AbilityShowcase({
             </div>
           </div>
         )}
-        <div className="mt-5 flex gap-3 overflow-x-auto pb-1">
+        <div className="mt-5 flex snap-x gap-3 overflow-x-auto pb-1">
           {showcase.assets.map((asset) => (
             <button
               type="button"
               key={asset.id}
               onClick={() => setSelectedAssetId(asset.id)}
-              className={`min-w-52 rounded-xl border p-4 text-left transition ${
+              className={`min-w-[13rem] snap-start rounded-xl border p-3 text-left transition sm:p-4 ${
                 asset.id === selectedAsset?.id
                   ? "border-red-200 bg-red-50 text-slate-950 shadow-sm dark:border-white/20 dark:bg-white/10 dark:text-white dark:shadow-none"
                   : "border-slate-200 bg-slate-50 text-slate-700 hover:border-red-200 hover:bg-red-50/60 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300 dark:hover:border-white/20 dark:hover:bg-white/10"

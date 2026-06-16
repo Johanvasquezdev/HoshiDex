@@ -22,6 +22,7 @@ export function PokemonCard({
     hovered && pokemon.media.animated
       ? pokemon.media.animated
       : pokemon.media.primary ?? pokemon.media.fallback;
+  const isAnimatedSprite = image === pokemon.media.animated;
 
   return (
     <Link href={`/pokemon/${pokemon.id}`} className="block">
@@ -91,7 +92,9 @@ export function PokemonCard({
             alt={pokemon.displayName}
             width={128}
             height={128}
-            className="max-h-full max-w-full object-contain drop-shadow-2xl"
+            className={`max-h-full max-w-full object-contain drop-shadow-2xl ${
+              isAnimatedSprite ? "[image-rendering:pixelated]" : ""
+            }`}
           />
         </div>
       </article>

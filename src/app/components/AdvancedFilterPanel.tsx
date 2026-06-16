@@ -210,7 +210,7 @@ export function AdvancedFilterPanel({
                 }
                 className={`rounded-xl border px-2 py-2 text-[10px] font-black transition ${
                   filters[key as "legendary" | "mythical" | "baby"]
-                    ? "border-sky-200 bg-sky-500 text-white"
+                    ? "border-sky-500 bg-sky-500 text-white shadow-lg shadow-sky-200/70 dark:border-sky-200 dark:bg-sky-500 dark:shadow-sky-950/30"
                     : "border-slate-200 bg-white text-slate-600 hover:border-sky-200 hover:bg-sky-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
                 }`}
               >

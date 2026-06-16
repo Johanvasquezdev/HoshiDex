@@ -27,6 +27,7 @@ export async function seedMaintenanceCatalog() {
       { id: "electric", name: "Electric" },
       { id: "psychic", name: "Psychic" },
       { id: "dragon", name: "Dragon" },
+      { id: "ground", name: "Ground" },
     ],
     { updateOnDuplicate: ["name"] },
   );
@@ -56,6 +57,14 @@ export async function seedMaintenanceCatalog() {
         region_id: "kalos",
         primary_type_id: "water",
         secondary_type_id: "dark",
+      },
+      {
+        id: "zygarde",
+        name: "Zygarde",
+        image_url: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/718.png",
+        region_id: "kalos",
+        primary_type_id: "dragon",
+        secondary_type_id: "ground",
       },
     ],
     { updateOnDuplicate: ["name", "image_url", "region_id", "primary_type_id", "secondary_type_id"] },
